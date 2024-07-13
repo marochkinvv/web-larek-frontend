@@ -68,9 +68,9 @@ interface IOrder {
 	email: string;
 	tel: string;
 	payment: 'online' | 'offline';
-	orderState: 'clear' | 'stepOne' | 'stepTwo' | 'success' | 'error';
-	checkValidationStepOne(data: Record<keyof TOrderPaymentInfo, string>): boolean;
-	checkValidationStepTwo(data: Record<keyof TOrderContactsInfo, string>): boolean;
+	orderState: 'clear' | 'delivery' | 'contacts' | 'success';
+	checkValidationDelivery(data: Record<keyof TOrderPaymentInfo, string>): boolean;
+	checkValidationContacts(data: Record<keyof TOrderContactsInfo, string>): boolean;
 	setOrderState(): void;
 }
 ```
@@ -184,13 +184,13 @@ type TOrderContactsInfo = Pick<IUser, 'email' | 'tel'>;
 - email: string - Емэйл пользователя
 - tel: string - Телефон пользователя
 - payment: 'online' | 'offline' - способ оплаты заказа
-- orderState: 'clear' | 'stepOne' | 'stepTwo' | 'success' - состояние заказа
+- orderState: 'clear' | 'delivery' | 'contacts' | 'success' - состояние заказа
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 Также класс предоставляет набор методов для взаимодействия с этими данными:
 
-- checkValidationStepOne(data: Record<keyof TOrderPaymentInfo, string>): boolean - Проверяет объект с данными пользователя из первого шага оформления заказа на валидность
-- checkValidationStepTwo(data: Record<keyof TOrderContactsInfo, string>): boolean - Проверяет объект с данными пользователя из второго шага оформления заказа на валидность
+- checkValidationDelivery(data: Record<keyof TOrderPaymentInfo, string>): boolean - Проверяет объект с данными пользователя из первого шага оформления заказа на валидность
+- checkValidationContactsTwo(data: Record<keyof TOrderContactsInfo, string>): boolean - Проверяет объект с данными пользователя из второго шага оформления заказа на валидность
 - setOrderState(): void - устанавливает состояние заказа
 
 ### Классы представления
@@ -208,7 +208,7 @@ type TOrderContactsInfo = Pick<IUser, 'email' | 'tel'>;
 - modal: HTMLElement - элемент модального окна
 - events: Ievents - брокер событий
 
-#### Класс ModalWithOrderStepOne
+#### Класс ModalWithOrderDelivery
 
 Расширяет класс Modal. Предназначен для реализации модального окна первого шага заказа. При сабмите инициирует событие, передавая в него объект с данными из полей ввода формы. При изменении данных в полях ввода инициирует событие изменения данных. Предоставляет методы для отображения ошибок и управления активностью кнопки сохранения. \
 
@@ -232,7 +232,7 @@ type TOrderContactsInfo = Pick<IUser, 'email' | 'tel'>;
 - close(): void - расширяет родительский метод, дополнительно очищая поле ввода и деактивируя кнопку подтверждения
 - get form(): HTMLElement - геттер для получения элемента формы
 
-#### Класс ModalWithOrderStepTwo
+#### Класс ModalWithOrderContacts
 
 Расширяет класс Modal. Предназначен для реализации модального окна второго шага заказа. При сабмите инициирует событие, передавая в него объект с данными из полей ввода формы. При изменении данных в полях ввода инициирует событие изменения данных. Предоставляет методы для отображения ошибок и управления активностью кнопки сохранения. \
 
@@ -350,19 +350,19 @@ _События, возникающие при взаимодействии по
 - `cart:open` - открытие модального окна корзины
 - `cart:submit` - событие, генерируемое при нажатии "оформить" в корзине
 - `card:open` - открытие модального окна карточки товара
-- `order-step-one:open` - открытие модального окна первого шага оформления заказа
-- `order-step-two:open` - открытие модального окна второго шага оформления заказа
+- `order-delivery:open` - открытие модального окна первого шага оформления заказа
+- `order-contacts:open` - открытие модального окна второго шага оформления заказа
 - `order-success:open` - открытие модального окна с уведомлением об успешно оформленном заказе
 - `add-card:submit` - добавление товара в корзину
 - `delete-card:submit` - удаление товара из корзины
 - `order-payment:select` - выбор способа доставки
 - `order-address:input` - изменение данных адреса доставки
-- `order-step-one:submit` - событие, генерируемое при нажатии "далее" в модальном окне первого шага заказа
-- `order-step-one:validation` - событие, сообщающее о необходимости валидации формы первого шага заказа
+- `order-delivery:submit` - событие, генерируемое при нажатии "далее" в модальном окне первого шага заказа
+- `order-delivery:validation` - событие, сообщающее о необходимости валидации формы первого шага заказа
 - `order-mail:input` - изменение данных электронной почты
 - `order-tel:input` - изменение данных телефона
-- `order-step-two:submit` - событие, генерируемое при нажатии "оплатить" в модальном окне второго шага заказа
-- `order-step-two:validation` - событие, сообщающее о необходимости валидации формы второго шага заказа
+- `order-contacts:submit` - событие, генерируемое при нажатии "оплатить" в модальном окне второго шага заказа
+- `order-contacts:validation` - событие, сообщающее о необходимости валидации формы второго шага заказа
 - `order-success:submit` - событие, генерируемое при нажатии "за новыми покупками" в модальном окне успешного заказа
 - `order:clear` - очистка данных в заказе, возвращение к начальному состоянию
 - `cart:clear` - очистка данных в корзине

@@ -6,6 +6,7 @@ export interface ICard {
 	title: string;
 	category: string;
 	price: number;
+	isInCart: boolean;
 }
 
 // Интерфейс данных заказа
@@ -14,11 +15,11 @@ export interface IOrder {
 	email: string;
 	tel: string;
 	payment: 'online' | 'offline';
-	orderState: 'clear' | 'stepOne' | 'stepTwo' | 'success';
-	checkValidationStepOne(
+	orderState: 'clear' | 'delivery' | 'contacts' | 'success';
+	checkValidationDelivery(
 		data: Record<keyof TOrderPaymentInfo, string>
 	): boolean;
-	checkValidationStepTwo(
+	checkValidationContacts(
 		data: Record<keyof TOrderContactsInfo, string>
 	): boolean;
 	setOrderState(): void;
@@ -26,8 +27,8 @@ export interface IOrder {
 
 // Интерфейс каталога карточек товаров (например, для Главной страницы)
 export interface ICatalog {
-	cards: ICard[];
-	getCard(cardId: string): ICard;
+	_cards: ICard[];
+	getCard(cardId: string): ICard | undefined;
 }
 
 // Интерфейс корзины
@@ -45,3 +46,13 @@ export type TCardCartInfo = Pick<ICard, 'id' | 'title' | 'price'>;
 export type TOrderPaymentInfo = Pick<IOrder, 'payment' | 'address'>;
 
 export type TOrderContactsInfo = Pick<IOrder, 'email' | 'tel'>;
+
+export enum ECardCategory {
+	soft = 'софт-скил',
+	hard = 'хард-скил',
+	other = 'другое',
+	additional = 'дополнительное',
+	button = 'кнопка',
+}
+
+export type TCardCategory = keyof typeof ECardCategory;
