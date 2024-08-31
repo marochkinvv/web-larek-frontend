@@ -4,86 +4,260 @@ import { Component } from './base/Component';
 import { IEvents } from './base/Events';
 
 export class Card extends Component<ICard> {
-	protected cardId: string;
-	protected cardDescription?: HTMLElement;
-	protected cardImage?: HTMLImageElement;
-	protected cardTitle: HTMLElement;
-	protected cardCategory?: HTMLElement;
-	protected cardPrice: HTMLElement;
-	protected isInCart: boolean;
-	protected cardButton?: HTMLButtonElement;
+  protected cardId: string;
+  protected cardImage: HTMLImageElement;
+  protected cardTitle: HTMLElement;
+  protected cardCategory: HTMLElement;
+  protected cardPrice: HTMLElement;
+  public isInCart: boolean;
 
-	constructor(
-		protected blockName: string,
-		container: HTMLElement,
-		protected events: IEvents
-	) {
-		super(container);
-		this.cardTitle = ensureElement(`.${blockName}__title`, this.container);
-		this.cardPrice = ensureElement(`.${blockName}__price`, this.container);
-		this.cardImage = ensureElement(
-			`.${blockName}__image`,
-			this.container
-		) as HTMLImageElement;
-		this.cardCategory = ensureElement(
-			`.${blockName}__category`,
-			this.container
-		);
+  constructor(
+    protected blockName: string,
+    container: HTMLElement,
+    protected events: IEvents
+  ) {
+    super(container);
+  }
 
-		this.cardImage.addEventListener('click', () =>
-			this.events.emit('card:select', { data: this.cardId })
-		);
-	}
+  set id(value: string) {
+    this.cardId = value;
+  }
 
-	set id(value: string) {
-		this.cardId = value;
-	}
+  set title(value: string) {
+    this.setText(this.cardTitle, value);
+  }
 
-	set image(src: string) {
-		this.setImage(this.cardImage, src);
-	}
+  set price(value: number) {
+    if (value !== null) {
+      this.setText(
+        this.cardPrice,
+        `${new Intl.NumberFormat('ru-RU').format(value)} синапсов`
+      );
+    } else {
+      this.setText(this.cardPrice, `Бесценно`);
+    }
+  }
 
-	set title(value: string) {
-		this.setText(this.cardTitle, value);
-	}
-
-	set price(value: string) {
-		if (value !== null) {
-			this.setText(
-				this.cardPrice,
-				`${new Intl.NumberFormat('ru-RU').format(Number(value))} синапсов`
-			);
-		} else {
-			this.setText(this.cardPrice, `Бесценно`);
-		}
-	}
-
-	set category(value: TCardCategory) {
-		this.setText(this.cardCategory, value);
-
-		const currentKey = (Object.keys(ECardCategory) as TCardCategory[]).find(
-			(key) => {
-				return ECardCategory[key] === (value as string);
-			}
-		);
-
-		if (this.cardCategory.textContent === value) {
-			this.toggleClass(this.cardCategory, `card__category_${currentKey}`, true);
-		}
-	}
+  set status(value: boolean) {
+    this.isInCart = value;
+  }
 }
 
-export class CardPreview extends Card {
+// Класс для карточки в каталоге
+export class CardCatalogPreview extends Card {
+  constructor(
+    blockName: string,
+    container: HTMLElement,
+    events: IEvents
+  ) {
+    super('card', container, events);
+    this.cardTitle = ensureElement(
+      `.${blockName}__title`,
+      this.container
+    );
+    this.cardPrice = ensureElement(
+      `.${blockName}__price`,
+      this.container
+    );
+    this.cardImage = ensureElement<HTMLImageElement>(
+      `.${blockName}__image`,
+      this.container
+    );
+    this.cardCategory = ensureElement(
+      `.${blockName}__category`,
+      this.container
+    );
 
-	constructor(container: HTMLElement, events: IEvents) {
-		super('card', container, events);
+    this.container.addEventListener('click', () => {
+      this.events.emit('card: select', { data: this.cardId });
+    });
+  }
 
-		this.cardDescription = ensureElement(`.card__text`, this.container);
-	}
+  set image(src: string) {
+    this.setImage(this.cardImage, src);
+  }
 
-	set description(value: string) {
-		if (this.cardDescription) {
-			this.setText(this.cardDescription, value);
-		}
-	}
+  set category(value: TCardCategory) {
+    this.setText(this.cardCategory, value);
+
+    const currentKey = (
+      Object.keys(ECardCategory) as TCardCategory[]
+    ).find((key) => {
+      return ECardCategory[key] === (value as string);
+    });
+
+    if (this.cardCategory.textContent === value) {
+      this.toggleClass(
+        this.cardCategory,
+        `card__category_${currentKey}`,
+        true
+      );
+    }
+  }
+}
+
+// Класс для карточки в модалке
+export class CardModalPreview extends Card {
+  protected cardDescription: HTMLElement;
+  protected cardButton: HTMLButtonElement;
+  public isInCart: boolean;
+
+  constructor(
+    blockName: string,
+    container: HTMLElement,
+    events: IEvents
+  ) {
+    super('card', container, events);
+
+    this.cardDescription = ensureElement(
+      `.${blockName}__text`,
+      this.container
+    );
+
+    this.cardPrice = ensureElement(
+      `.${blockName}__price`,
+      this.container
+    );
+
+    this.cardImage = ensureElement<HTMLImageElement>(
+      `.${blockName}__image`,
+      this.container
+    );
+
+    this.cardTitle = ensureElement(
+      `.${blockName}__title`,
+      this.container
+    );
+
+    this.cardCategory = ensureElement(
+      `.${blockName}__category`,
+      this.container
+    );
+
+    this.cardButton = ensureElement<HTMLButtonElement>(
+      `.${blockName}__button`,
+      this.container
+    );
+
+    this.cardButton.addEventListener('click', () => {
+      this.isInCart = !this.isInCart;
+      this.setButtonText();
+      this.events.emit('card: change-card-state', {
+        data: this.cardId,
+      });
+    });
+  }
+
+  set image(src: string) {
+    this.setImage(this.cardImage, src);
+  }
+
+  set description(value: string) {
+    if (this.cardDescription) {
+      this.setText(this.cardDescription, value);
+    }
+  }
+
+  setButtonText() {
+    if (this.isInCart) {
+      return (this.cardButton.textContent = 'Убрать');
+    } else {
+      return (this.cardButton.textContent = 'В корзину');
+    }
+  }
+
+  set button(value: string) {
+    this.setText(this.cardButton, (value = this.setButtonText()));
+  }
+
+  set price(value: number) {
+    if (value !== null) {
+      this.setText(
+        this.cardPrice,
+        `${new Intl.NumberFormat('ru-RU').format(value)} синапсов`
+      );
+    } else {
+      this.setText(this.cardPrice, `Бесценно`);
+    }
+  }
+
+  set category(value: TCardCategory) {
+    this.setText(this.cardCategory, value);
+
+    const currentKey = (
+      Object.keys(ECardCategory) as TCardCategory[]
+    ).find((key) => {
+      return ECardCategory[key] === (value as string);
+    });
+
+    if (this.cardCategory.textContent === value) {
+      this.toggleClass(
+        this.cardCategory,
+        `card__category_${currentKey}`,
+        true
+      );
+    }
+  }
+}
+
+// Класс для карточки в корзине
+export class CardInCartPreview extends Card {
+  protected cardInCartNumber: HTMLElement;
+  protected cardButton: HTMLButtonElement;
+  protected cardId: string;
+
+  constructor(
+    blockName: string,
+    container: HTMLElement,
+    events: IEvents
+  ) {
+    super('card', container, events);
+
+    this.cardInCartNumber = ensureElement(
+      `.${blockName}__index`,
+      this.container
+    );
+
+    this.cardTitle = ensureElement(
+      `.${blockName}__title`,
+      this.container
+    );
+
+    this.cardPrice = ensureElement(
+      `.${blockName}__price`,
+      this.container
+    );
+
+    this.cardButton = ensureElement<HTMLButtonElement>(
+      `.${blockName}__button`,
+      this.container
+    );
+
+    this.cardButton.addEventListener('click', () => {
+      this.isInCart = !this.isInCart;
+      this.events.emit('card: change-card-state', {
+        data: this.cardId,
+      });
+      this.events.emit('cart: open');
+    });
+  }
+
+  set inCartNumber(value: number) {
+    this.setText(this.cardInCartNumber, value.toString());
+  }
+
+  set title(value: string) {
+    this.setText(this.cardTitle, value);
+  }
+
+  set price(value: number) {
+    if (value !== null) {
+      this.setText(
+        this.cardPrice,
+        `${new Intl.NumberFormat('ru-RU').format(value)} синапсов`
+      );
+    } else {
+      this.setText(this.cardPrice, `Бесценно`);
+    }
+  }
 }

@@ -1,16 +1,20 @@
-@use "variables" as *;
-@use "mixins";
+@use 'variables' as *;
+@use 'mixins';
 
 .modal {
   @include mixins.sublayer;
-  height: max-content;
+  // height: max-content;
   position: absolute;
   display: none;
   justify-content: center;
   background-color: $overlayBackground;
   z-index: 100;
-  padding-top: 5vh;
+  // padding-top: 5vh;
   padding-bottom: 5vh;
+  padding-top: 10vh;
+  inset: 0;
+  align-items: flex-start;
+  height: auto;
 
   &_active {
     display: flex;
@@ -21,10 +25,11 @@
     @include mixins.flex(column);
     gap: $defaultPadding;
     background-color: $background;
-    min-height: 90vmin;
+    // min-height: 90vmin;
     border-radius: 3rem;
     box-sizing: border-box;
     position: relative;
+    min-height: 38vh;
   }
 
   &__content {
@@ -58,7 +63,7 @@
   }
 
   &__message {
-    white-space:nowrap;
+    white-space: nowrap;
     max-width: 60%;
     text-overflow: ellipsis;
     overflow: hidden;

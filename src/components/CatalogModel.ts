@@ -1,8 +1,8 @@
-import { ICard } from '../types';
+import { ICard, ICatalog } from '../types';
 import { IEvents } from './base/Events';
 
-export class CatalogModel {
-	protected _cards: ICard[] = [];
+export class CatalogModel implements ICatalog {
+	_cards: ICard[] = [];
 
 	constructor(protected events: IEvents) {}
 

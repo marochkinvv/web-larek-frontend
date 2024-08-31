@@ -23,7 +23,7 @@ export class Page extends Component<IPage> {
 		this._cart = ensureElement<HTMLElement>('.header__basket', this.container);
 
 		this._cart.addEventListener('click', () => {
-			this.events.emit('cart:open');
+			this.events.emit('cart: open');
 		});
 	}
 

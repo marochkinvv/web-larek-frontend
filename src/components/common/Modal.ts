@@ -20,7 +20,7 @@ export class Modal extends Component<IModalData> {
 		this._content = ensureElement<HTMLElement>('.modal__content', container);
 
 		this._closeButton.addEventListener('click', this.close.bind(this));
-		this.container.addEventListener('mousedown', this.close.bind(this));
+		// this.container.addEventListener('mousedown', this.close.bind(this));
 		this._content.addEventListener('click', (event) => event.stopPropagation());
 		this.handleEscUp = this.handleEscUp.bind(this);
 	}
@@ -31,14 +31,14 @@ export class Modal extends Component<IModalData> {
 
 	open() {
 		this.container.classList.add('modal_active');
-		this.events.emit('modal:open');
+		this.events.emit('modal: open');
 		document.addEventListener('keyup', this.handleEscUp);
 	}
 
 	close() {
 		this.container.classList.remove('modal_active');
 		this.content = null;
-		this.events.emit('modal:close');
+		this.events.emit('modal: close');
 		document.addEventListener('keyup', this.handleEscUp);
 	}
 
