@@ -6,7 +6,6 @@ import { EventEmitter } from '../base/Events';
 interface ICartView {
   items: HTMLElement[];
   totalPrice: number;
-  totalItems: number;
   cartButton: HTMLButtonElement;
 }
 

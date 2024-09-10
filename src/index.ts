@@ -14,6 +14,7 @@ import {
   CardInCartPreview,
   CardCatalogPreview,
   CardModalPreview,
+  Card,
 } from './components/common/Card';
 import { Modal } from './components/common/Modal';
 import { Cart } from './components/common/Cart';
@@ -239,6 +240,9 @@ events.on('order: incorrect-phone', () => {
 
 // Событие по клику на кнопку "Оплатить", отправляет POST-запрос на сервер
 events.on('order: send-post', () => {
+  let orderCardsArray = catalogModel.getInCart().filter((card) => {
+    return card.price > 0;
+  });
   api
     .post(
       '/order',
@@ -248,7 +252,7 @@ events.on('order: send-post', () => {
         phone: orderModel.phone,
         address: orderModel.address,
         total: catalogModel.getInCartTotalPrice(),
-        items: catalogModel.getInCart().map((card) => {
+        items: orderCardsArray.map((card) => {
           return card.id;
         }),
       },

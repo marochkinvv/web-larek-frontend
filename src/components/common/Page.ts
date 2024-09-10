@@ -6,6 +6,8 @@ interface IPage {
 	counter: number;
 	catalog: HTMLElement[];
 	locked: boolean;
+  wrapper: HTMLElement;
+  cart: HTMLElement;
 }
 
 export class Page extends Component<IPage> {
