@@ -1,7 +1,7 @@
-import { ECardCategory, ICard, TCardCategory } from '../types';
-import { ensureElement } from '../utils/utils';
-import { Component } from './base/Component';
-import { IEvents } from './base/Events';
+import { ECardCategory, ICard, TCardCategory } from '../../types';
+import { ensureElement } from '../../utils/utils';
+import { Component } from '../base/Component';
+import { IEvents } from '../base/Events';
 
 export class Card extends Component<ICard> {
   protected cardId: string;
@@ -9,7 +9,7 @@ export class Card extends Component<ICard> {
   protected cardTitle: HTMLElement;
   protected cardCategory: HTMLElement;
   protected cardPrice: HTMLElement;
-  public isInCart: boolean;
+  protected isInCart: boolean;
 
   constructor(
     protected blockName: string,
@@ -100,7 +100,7 @@ export class CardCatalogPreview extends Card {
 export class CardModalPreview extends Card {
   protected cardDescription: HTMLElement;
   protected cardButton: HTMLButtonElement;
-  public isInCart: boolean;
+  protected isInCart: boolean;
 
   constructor(
     blockName: string,
@@ -166,10 +166,6 @@ export class CardModalPreview extends Card {
     }
   }
 
-  set button(value: string) {
-    this.setText(this.cardButton, (value = this.setButtonText()));
-  }
-
   set price(value: number) {
     if (value !== null) {
       this.setText(
@@ -177,7 +173,14 @@ export class CardModalPreview extends Card {
         `${new Intl.NumberFormat('ru-RU').format(value)} синапсов`
       );
     } else {
-      this.setText(this.cardPrice, `Бесценно`);
+      this.setText(this.cardPrice, 'Бесценно');
+    }
+  }
+
+  set button(value: string) {
+    this.setText(this.cardButton, (value = this.setButtonText()));
+    if (this.cardPrice.textContent === 'Бесценно') {
+      this.setDisabled(this.cardButton, true);
     }
   }
 
@@ -202,7 +205,7 @@ export class CardModalPreview extends Card {
 
 // Класс для карточки в корзине
 export class CardInCartPreview extends Card {
-  protected cardInCartNumber: HTMLElement;
+  protected cardIndex: HTMLElement;
   protected cardButton: HTMLButtonElement;
   protected cardId: string;
 
@@ -213,7 +216,7 @@ export class CardInCartPreview extends Card {
   ) {
     super('card', container, events);
 
-    this.cardInCartNumber = ensureElement(
+    this.cardIndex = ensureElement(
       `.${blockName}__index`,
       this.container
     );
@@ -242,8 +245,8 @@ export class CardInCartPreview extends Card {
     });
   }
 
-  set inCartNumber(value: number) {
-    this.setText(this.cardInCartNumber, value.toString());
+  set index(value: number) {
+    this.setText(this.cardIndex, value.toString());
   }
 
   set title(value: string) {

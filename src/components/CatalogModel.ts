@@ -25,7 +25,6 @@ export class CatalogModel implements ICatalog {
 		const currentCard = this.getCard(cardId);
 		if (currentCard) {
 			currentCard.isInCart = !currentCard.isInCart;
-      this.events.emit('cards: changed');
 		}
 	}
 
@@ -62,6 +61,7 @@ export class CatalogModel implements ICatalog {
 
 	getCardIndexInCart(cardId: string): number {
 		if (cardId) {
+      console.log(this.getInCart().indexOf(this.getCardInCart(cardId)))
 			return this.getInCart().indexOf(this.getCardInCart(cardId));
 		}
 	}

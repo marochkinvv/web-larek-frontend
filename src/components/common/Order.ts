@@ -1,11 +1,6 @@
-import { IOrder } from '../types';
-import {
-  ensureElement,
-  cloneTemplate,
-  createElement,
-} from '../utils/utils';
-import { Component } from './base/Component';
-import { EventEmitter, IEvents } from './base/Events';
+import { ensureElement } from '../../utils/utils';
+import { Component } from '../base/Component';
+import { EventEmitter } from '../base/Events';
 
 // Интерфейс заказа
 interface IOrderView {
@@ -81,6 +76,22 @@ export class Order extends Component<IOrderView> {
       this.submitButton.setAttribute('disabled', 'true');
     }
   }
+
+  setAddressError(data: boolean) {
+    if (!data) {
+      this.setText(this.errors, 'Не указан адрес доставки');
+    } else {
+      this.setText(this.errors, '');
+    }
+  }
+
+  resetOrder() {
+    this.addressInput.value = '';
+    this.changeSubmitButtonState(false);
+    [this.cardButton, this.cashButton].forEach((button) => {
+      this.toggleClass(button, 'button_alt-active', false);
+    });
+  }
 }
 
 interface IContactsView {
@@ -136,11 +147,33 @@ export class Contacts extends Component<IContactsView> {
     });
   }
 
+  setEmailError(data: boolean) {
+    if (!data) {
+      this.setText(this.errors, 'Укажите email в формате name@domen.ru');
+    } else {
+      this.setText(this.errors, '');
+    }
+  }
+
+  setPhoneError(data: boolean) {
+    if (!data) {
+      this.setText(this.errors, 'Укажите телефон в формате +7 (999) 1234567');
+    } else {
+      this.setText(this.errors, '');
+    }
+  }
+
   changeSubmitButtonState(data: boolean) {
     if (data) {
       this.submitButton.removeAttribute('disabled');
     } else {
       this.submitButton.setAttribute('disabled', 'true');
     }
+  }
+
+  resetContacts() {
+    this.emailInput.value = '';
+    this.phoneInput.value = '';
+    this.changeSubmitButtonState(false);
   }
 }

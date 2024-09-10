@@ -7,8 +7,7 @@ export interface ICard {
   category?: string;
   price: number;
   isInCart: boolean;
-  inCartNumber?: number;
-  button?: string;
+  index?: number;
 }
 
 // Интерфейс данных заказа
@@ -17,7 +16,6 @@ export interface IOrder {
   email: string;
   phone: string;
   payment: 'online' | 'offline';
-  orderState: {};
   checkValidationPayment(data: string): boolean;
   checkValidationAddress(data: string): boolean;
   checkValidationEmail(data: string): boolean;
@@ -29,12 +27,6 @@ export interface ICatalog {
   _cards: ICard[];
   getCard(cardId: string): ICard | undefined;
 }
-
-// export type TCardCartInfo = Pick<ICard, 'id' | 'title' | 'price'>;
-
-// export type TOrderPaymentInfo = Pick<IOrder, 'payment' | 'address'>;
-
-// export type TOrderContactsInfo = Pick<IOrder, 'email' | 'phone'>;
 
 export enum ECardCategory {
   soft = 'софт-скил',

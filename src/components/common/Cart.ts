@@ -1,10 +1,6 @@
-import {
-  ensureElement,
-  cloneTemplate,
-  createElement,
-} from '../utils/utils';
-import { Component } from './base/Component';
-import { EventEmitter, IEvents } from './base/Events';
+import { ensureElement, createElement } from '../../utils/utils';
+import { Component } from '../base/Component';
+import { EventEmitter } from '../base/Events';
 
 // Интерфейс корзины
 interface ICartView {

@@ -1,30 +1,24 @@
 import './scss/styles.scss';
-import {
-  // TOrderPaymentInfo,
-  // TCardCartInfo,
-  TCardCategory,
-  // TOrderContactsInfo,
-} from './types';
 import { CatalogModel } from './components/CatalogModel';
 import { OrderModel } from './components/OrderModel';
 import { CatalogApi } from './components/CatalogApi';
 import { API_URL, CDN_URL } from './utils/constants';
 import { EventEmitter } from './components/base/Events';
-import { Page } from './components/Page';
+import { Page } from './components/common/Page';
 import {
   cloneTemplate,
   createElement,
   ensureElement,
 } from './utils/utils';
 import {
-  Card,
   CardInCartPreview,
   CardCatalogPreview,
   CardModalPreview,
-} from './components/Card';
+} from './components/common/Card';
 import { Modal } from './components/common/Modal';
-import { Cart } from './components/Cart';
-import { Order, Contacts } from './components/Order';
+import { Cart } from './components/common/Cart';
+import { Order, Contacts } from './components/common/Order';
+import { Success } from './components/common/Success';
 
 const events = new EventEmitter();
 const api = new CatalogApi(API_URL);
@@ -39,26 +33,12 @@ const modal = new Modal(
 );
 
 // Шаблоны
-
-const cardCatalogPreview = new CardCatalogPreview(
-  'card',
-  cloneTemplate('#card-catalog'),
-  events
-);
-const cardModalPreview = new CardModalPreview(
-  'card',
-  cloneTemplate('#card-preview'),
-  events
-);
-const cardInCartPreview = new CardInCartPreview(
-  'card',
-  cloneTemplate('#card-basket'),
-  events
-);
 const cart = new Cart(cloneTemplate('#basket'), events);
 const order = new Order(cloneTemplate('#order'), events);
 const contacts = new Contacts(cloneTemplate('#contacts'), events);
+const success = new Success(cloneTemplate('#success'), events);
 
+// Получаем карточки с сервера и отрисовываем Главную страницу
 api
   .getData()
   .then((data) => {
@@ -90,6 +70,7 @@ events.on('cards: changed', () => {
   });
 });
 
+// Событие по клику на карточку в каталоге на Главной
 events.on('card: select', (data: { id: string }) => {
   const currentCardId = Object.values(data).toString();
   const currentCard = catalogModel.getCard(currentCardId);
@@ -107,11 +88,11 @@ events.on('card: select', (data: { id: string }) => {
       price: currentCard.price,
       category: currentCard.category,
       isInCart: currentCard.isInCart,
-      button: currentCard.button,
     }),
   });
 });
 
+// Событие по клику на корзину на Главной
 events.on('cart: open', () => {
   const cardsHTMLArray = catalogModel.getInCart().map((item) => {
     const newCard = new CardInCartPreview(
@@ -124,7 +105,7 @@ events.on('cart: open', () => {
       price: item.price,
       id: item.id,
       isInCart: item.isInCart,
-      inCartNumber: catalogModel.getInCart().indexOf(item) + 1,
+      index: catalogModel.getCardIndexInCart(item.id) + 1,
     });
   });
 
@@ -138,6 +119,7 @@ events.on('cart: open', () => {
   });
 });
 
+// Событие при добавлении/удалении карточки в/из корзину(ы)
 events.on('card: change-card-state', (data: { id: string }) => {
   const currentCard = Object.values(data).toString();
   catalogModel.changeCardState(currentCard);
@@ -147,14 +129,20 @@ events.on('card: change-card-state', (data: { id: string }) => {
   } else {
     cart.changeButtonState(false);
   }
+
+  page.render({
+    counter: catalogModel.getInCartTotal(),
+  });
 });
 
+// Событие по клику на кнопку "Оформить"
 events.on('order: delivery-open', () => {
   modal.render({
     content: createElement<HTMLElement>('div', {}, [order.render()]),
   });
 });
 
+// Событие по клику на кнопку "Далее"
 events.on('order: contacts-open', () => {
   modal.render({
     content: createElement<HTMLElement>('div', {}, [
@@ -163,6 +151,7 @@ events.on('order: contacts-open', () => {
   });
 });
 
+// Событие по клику на кнопки выбора способа оплаты
 events.on(
   'order: choose-payment',
   (data: { value: 'online' | 'offline' }) => {
@@ -173,56 +162,52 @@ events.on(
   }
 );
 
+// Событие при инпуте адреса, отправляет значение инпута на валидацию
 events.on('order: address-input', (data: { value: string }) => {
   const inputValue = Object.values(data).toString();
   orderModel.checkValidationAddress(inputValue);
 });
 
+// Событие проверяет можно ли разблокировать кнопку "Далее"
 events.on('order: correct-payment', () => {
   if (orderModel.address) {
     order.changeSubmitButtonState(true);
-    orderModel.getOrderState();
   } else {
     order.changeSubmitButtonState(false);
   }
 });
 
+// Событие проверяет можно ли разблокировать кнопку "Далее"
 events.on('order: correct-address', () => {
+  order.setAddressError(true);
   if (orderModel.payment) {
     order.changeSubmitButtonState(true);
-    orderModel.getOrderState();
   } else {
     order.changeSubmitButtonState(false);
   }
 });
 
+// Событие блокирует кнопку "Далее" и выводит ошибку для адреса
 events.on('order: incorrect-address', () => {
   order.changeSubmitButtonState(false);
+  order.setAddressError(false);
 });
 
+// Событие при инпуте емэйла, отправляет значение инпута на валидацию
 events.on('order: input-email', (data: { value: string }) => {
   const inputValue = Object.values(data).toString();
   orderModel.checkValidationEmail(inputValue);
 });
 
+// Событие при инпуте телефона, отправляет значение инпута на валидацию
 events.on('order: input-phone', (data: { value: string }) => {
   const inputValue = Object.values(data).toString();
   orderModel.checkValidationPhone(inputValue);
 });
 
+// Событие проверяет можно ли разблокировать кнопку "Оплатить"
 events.on('order: correct-email', () => {
-  if (orderModel.email) {
-    contacts.changeSubmitButtonState(true);
-  } else {
-    contacts.changeSubmitButtonState(false);
-  }
-});
-
-events.on('order: incorrect-email', () => {
-  contacts.changeSubmitButtonState(false);
-});
-
-events.on('order: correct-phone', () => {
+  contacts.setEmailError(true);
   if (orderModel.phone) {
     contacts.changeSubmitButtonState(true);
   } else {
@@ -230,14 +215,72 @@ events.on('order: correct-phone', () => {
   }
 });
 
-events.on('order: incorrect-phone', () => {
-  contacts.changeSubmitButtonState(false);
+// Событие проверяет можно ли разблокировать кнопку "Оплатить"
+events.on('order: correct-phone', () => {
+  contacts.setPhoneError(true);
+  if (orderModel.email) {
+    contacts.changeSubmitButtonState(true);
+  } else {
+    contacts.changeSubmitButtonState(false);
+  }
 });
 
-// events.on('order: send-post', () => {
+// Событие блокирует кнопку "Оплатить" и выводит ошибку для емэйла
+events.on('order: incorrect-email', () => {
+  contacts.changeSubmitButtonState(false);
+  contacts.setEmailError(false);
+});
 
-// })
+// Событие блокирует кнопку "Оплатить" и выводит ошибку для телефона
+events.on('order: incorrect-phone', () => {
+  contacts.changeSubmitButtonState(false);
+  contacts.setPhoneError(false);
+});
 
+// Событие по клику на кнопку "Оплатить", отправляет POST-запрос на сервер
+events.on('order: send-post', () => {
+  api
+    .post(
+      '/order',
+      {
+        payment: orderModel.payment,
+        email: orderModel.email,
+        phone: orderModel.phone,
+        address: orderModel.address,
+        total: catalogModel.getInCartTotalPrice(),
+        items: catalogModel.getInCart().map((card) => {
+          return card.id;
+        }),
+      },
+      'POST'
+    )
+    .then((data) => {
+      success.setTotalValue(catalogModel.getInCartTotalPrice());
+      modal.render({
+        content: createElement<HTMLElement>('div', {}, [
+          success.render(),
+        ]),
+      });
+    })
+    .catch((err) => console.log(err))
+    .finally(() => {
+      catalogModel.getInCart().forEach((card) => {
+        card.isInCart = false;
+      });
+      orderModel.reset();
+      order.resetOrder();
+      contacts.resetContacts();
+      page.render({
+        counter: catalogModel.getInCartTotal(),
+      });
+    });
+});
+
+events.on('success: close', () => {
+  modal.close();
+});
+
+// Вывод всех событий в консоль
 events.onAll((event) => {
   console.log(event.eventName, event.data);
 });

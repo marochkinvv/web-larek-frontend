@@ -1,16 +1,11 @@
 import { IEvents } from './base/Events';
-import {
-  IOrder,
-  // TOrderContactsInfo,
-  // TOrderPaymentInfo,
-} from '../types';
+import { IOrder } from '../types';
 
 export class OrderModel implements IOrder {
   address: string;
   email: string;
   phone: string;
   payment: 'online' | 'offline';
-  orderState: {};
 
   constructor(protected events: IEvents) {}
 
@@ -29,18 +24,20 @@ export class OrderModel implements IOrder {
       this.events.emit('order: correct-address');
       return true;
     } else {
+      this.setAddress(null);
       this.events.emit('order: incorrect-address');
       return false;
     }
   }
 
   checkValidationEmail(data: string): boolean {
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9-]+.[A-Z]{2,4}$/i;
+    const emailRegex = /^[A-Z0-9\.\_\%\+\-]+\@[A-Z0-9\-]+\.[A-Z]+$/i;
     if (emailRegex.test(data)) {
       this.setEmail(data);
       this.events.emit('order: correct-email');
       return true;
     } else {
+      this.setEmail(null);
       this.events.emit('order: incorrect-email');
       return false;
     }
@@ -53,19 +50,10 @@ export class OrderModel implements IOrder {
       this.events.emit('order: correct-phone');
       return true;
     } else {
+      this.setPhone(null);
       this.events.emit('order: incorrect-phone');
       return false;
     }
-  }
-
-  setOrderState(data: string) {
-    this.orderState = data;
-    this.events.emit('order: change-state', { data: this.orderState });
-  }
-
-  getOrderState(): {} {
-    console.log(this.orderState);
-    return this.orderState;
   }
 
   setPayment(data: 'online' | 'offline') {
@@ -82,5 +70,12 @@ export class OrderModel implements IOrder {
 
   setPhone(data: string) {
     this.phone = data;
+  }
+
+  reset() {
+    this.payment = null;
+    this.address = null;
+    this.email = null;
+    this.phone = null;
   }
 }
