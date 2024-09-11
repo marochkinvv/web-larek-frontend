@@ -5,11 +5,11 @@ export class OrderModel implements IOrder {
   address: string;
   email: string;
   phone: string;
-  payment: 'online' | 'offline';
+  payment: string;
 
   constructor(protected events: IEvents) {}
 
-  checkValidationPayment(data: 'online' | 'offline'): boolean {
+  checkValidationPayment(data: string): boolean {
     if (data) {
       this.setPayment(data);
       this.events.emit('order: correct-payment');
@@ -56,7 +56,7 @@ export class OrderModel implements IOrder {
     }
   }
 
-  setPayment(data: 'online' | 'offline') {
+  setPayment(data: string) {
     this.payment = data;
   }
 
@@ -73,9 +73,9 @@ export class OrderModel implements IOrder {
   }
 
   reset() {
-    this.payment = null;
-    this.address = null;
-    this.email = null;
-    this.phone = null;
+    this.payment = '';
+    this.address = '';
+    this.email = '';
+    this.phone = '';
   }
 }

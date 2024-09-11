@@ -15,7 +15,7 @@ export interface IOrder {
   address: string;
   email: string;
   phone: string;
-  payment: 'online' | 'offline';
+  payment: string;
   checkValidationPayment(data: string): boolean;
   checkValidationAddress(data: string): boolean;
   checkValidationEmail(data: string): boolean;

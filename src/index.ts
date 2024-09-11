@@ -91,6 +91,7 @@ events.on('card: select', (data: { id: string }) => {
       isInCart: currentCard.isInCart,
     }),
   });
+  newCard.setButtonActiveState();
 });
 
 // Событие по клику на корзину на Главной
@@ -123,7 +124,7 @@ events.on('cart: open', () => {
 // Событие при добавлении/удалении карточки в/из корзину(ы)
 events.on('card: change-card-state', (data: { id: string }) => {
   const currentCard = Object.values(data).toString();
-  catalogModel.changeCardState(currentCard);
+  catalogModel.changeCardInCartParam(currentCard);
 
   if (catalogModel.getInCart().length > 0) {
     cart.changeButtonState(true);
@@ -240,7 +241,7 @@ events.on('order: incorrect-phone', () => {
 
 // Событие по клику на кнопку "Оплатить", отправляет POST-запрос на сервер
 events.on('order: send-post', () => {
-  let orderCardsArray = catalogModel.getInCart().filter((card) => {
+  const orderCardsArray = catalogModel.getInCart().filter((card) => {
     return card.price > 0;
   });
   api
@@ -266,21 +267,19 @@ events.on('order: send-post', () => {
         ]),
       });
     })
-    .catch((err) => console.log(err))
-    .finally(() => {
-      catalogModel.getInCart().forEach((card) => {
-        card.isInCart = false;
-      });
-      orderModel.reset();
-      order.resetOrder();
-      contacts.resetContacts();
-      page.render({
-        counter: catalogModel.getInCartTotal(),
-      });
-    });
+    .catch((err) => console.log(err));
 });
 
 events.on('success: close', () => {
+  catalogModel.getInCart().forEach((card) => {
+    card.isInCart = false;
+  });
+  orderModel.reset();
+  order.resetOrder();
+  contacts.resetContacts();
+  page.render({
+    counter: catalogModel.getInCartTotal(),
+  });
   modal.close();
 });
 

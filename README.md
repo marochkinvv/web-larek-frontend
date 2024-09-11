@@ -69,7 +69,7 @@ interface IOrder {
 	address: string;
 	email: string;
 	phone: string;
-	payment: 'online' | 'offline';
+	payment: string;
 	checkValidationPayment(data: string): boolean;
   checkValidationAddress(data: string): boolean;
   checkValidationEmail(data: string): boolean;
@@ -85,7 +85,6 @@ interface ICatalog {
   getCard(cardId: string): ICard | undefined;
 }
 ```
-
 
 ## Архитектура приложения
 
@@ -147,16 +146,16 @@ interface ICatalog {
 - address: string - Адрес пользователя
 - email: string - Емэйл пользователя
 - phone: string - Телефон пользователя
-- payment: 'online' | 'offline' - способ оплаты заказа
+- payment: string - способ оплаты заказа
 - events: IEvents - экземпляр класса `EventEmitter` для инициации событий при изменении данных.
 
 Также класс предоставляет набор методов для взаимодействия с этими данными:
 
-- checkValidationPayment(data: 'online' | 'offline'): boolean - валидирует кнопки выбора способа оплаты
+- checkValidationPayment(data: string): boolean - валидирует кнопки выбора способа оплаты
 - checkValidationAddress(data: string): boolean - валидирует полученное значение адреса доставки
 - checkValidationEmail(data: string): boolean - валидирует полученное значение емэйла
 - checkValidationPhone(data: string): boolean - валидирует полученное значение телефона
-- setPayment(data: 'online' | 'offline') - устанавливает значение способа оплаты
+- setPayment(data: string) - устанавливает значение способа оплаты
 - setAddress(data: string) - устанавливает значение адреса доставки
 - setEmail(data: string) - устанавливает значение емэйла
 - setPhone(data: string) - устанавливает значение телефона
@@ -174,8 +173,8 @@ interface ICatalog {
 
 Поля класса:
 
-- _closeButton: HTMLButtonElement - элемент кнопки закрытия модального окна
-- _content: HTMLElement - элемент содержимого модального окна
+- \_closeButton: HTMLButtonElement - элемент кнопки закрытия модального окна
+- \_content: HTMLElement - элемент содержимого модального окна
 
 Методы:
 
@@ -319,4 +318,3 @@ _События, возникающие при взаимодействии по
 - `success: close` - закрытие модального окна по кнопке в модалке с сообщением об успешном заказе
 - `modal: open` - открытие модального окна
 - `modal: close` - закрытие модального окна
-

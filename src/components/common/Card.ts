@@ -158,14 +158,6 @@ export class CardModalPreview extends Card {
     }
   }
 
-  setButtonText() {
-    if (this.isInCart) {
-      return (this.cardButton.textContent = 'Убрать');
-    } else {
-      return (this.cardButton.textContent = 'В корзину');
-    }
-  }
-
   set price(value: number) {
     if (value !== null) {
       this.setText(
@@ -174,13 +166,6 @@ export class CardModalPreview extends Card {
       );
     } else {
       this.setText(this.cardPrice, 'Бесценно');
-    }
-  }
-
-  set button(value: string) {
-    this.setText(this.cardButton, (value = this.setButtonText()));
-    if (this.cardPrice.textContent === 'Бесценно') {
-      this.setDisabled(this.cardButton, true);
     }
   }
 
@@ -199,6 +184,20 @@ export class CardModalPreview extends Card {
         `card__category_${currentKey}`,
         true
       );
+    }
+  }
+
+  setButtonText() {
+    if (this.isInCart) {
+      return (this.cardButton.textContent = 'Убрать');
+    } else {
+      return (this.cardButton.textContent = 'В корзину');
+    }
+  }
+
+  setButtonActiveState() {
+    if (this.cardPrice.textContent === 'Бесценно') {
+      this.setDisabled(this.cardButton, true);
     }
   }
 }
