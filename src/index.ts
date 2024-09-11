@@ -266,20 +266,21 @@ events.on('order: send-post', () => {
           success.render(),
         ]),
       });
+      catalogModel.getInCart().forEach((card) => {
+        card.isInCart = false;
+      });
+      orderModel.reset();
+      order.resetOrder();
+      contacts.resetContacts();
+      cart.changeButtonState(false);
+      page.render({
+        counter: catalogModel.getInCartTotal(),
+      });
     })
     .catch((err) => console.log(err));
 });
 
 events.on('success: close', () => {
-  catalogModel.getInCart().forEach((card) => {
-    card.isInCart = false;
-  });
-  orderModel.reset();
-  order.resetOrder();
-  contacts.resetContacts();
-  page.render({
-    counter: catalogModel.getInCartTotal(),
-  });
   modal.close();
 });
 
